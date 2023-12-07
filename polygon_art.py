@@ -1,52 +1,83 @@
 import turtle
 import random
 
-def draw_polygon(num_sides, size, orientation, location, color, border_size):
-    turtle.penup()
-    turtle.goto(location[0], location[1])
-    turtle.setheading(orientation)
-    turtle.color(color)
-    turtle.pensize(border_size)
-    turtle.pendown()
-    for _ in range(num_sides):
-        turtle.forward(size)
-        turtle.left(360/num_sides)
-    turtle.penup()
 
-def get_new_color():
-    return (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+class Polygon:
+    def __init__(self,sides,small):
+        turtle.colormode(255)
+        self.sides = sides
+        self.small = small
+        self.color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+        self.size = random.randint(50, 150)
+        self.orientation = random.randint(0, 90)
+        self.location = [random.randint(-300, 300), random.randint(-200, 200)]
+        self.border_size = random.randint(1, 10)
 
-turtle.speed(0)
-turtle.bgcolor('black')
-turtle.tracer(0)
-turtle.colormode(255)
 
-# draw a polygon at a random location, orientation, color, and border line thickness
-num_sides = random.randint(3, 5) # triangle, square, or pentagon
-size = random.randint(50, 150)
-orientation = random.randint(0, 90)
-location = [random.randint(-300, 300), random.randint(-200, 200)]
-color = get_new_color()
-border_size = random.randint(1, 10)
-draw_polygon(num_sides, size, orientation, location, color, border_size)
+    def setup(self):
+        turtle.speed(0)
+        turtle.bgcolor('black')
+        turtle.tracer(0)
 
-# specify a reduction ratio to draw a smaller polygon inside the one above
-reduction_ratio = 0.618
 
-# reposition the turtle and get a new location
-turtle.penup()
-turtle.forward(size*(1-reduction_ratio)/2)
-turtle.left(90)
-turtle.forward(size*(1-reduction_ratio)/2)
-turtle.right(90)
-location[0] = turtle.pos()[0]
-location[1] = turtle.pos()[1]
+    def play(self):
+        if self.small == "Yes":
+            self.reduct_ratio = 0.6
+            self.draw_polygon()
+            for i in range(2):
+                self.small_setup()
+                self.small_create()
 
-# adjust the size according to the reduction ratio
-size *= reduction_ratio
+        elif self.small == "No":
+            self.draw_polygon()
 
-# draw the second polygon embedded inside the original 
-draw_polygon(num_sides, size, orientation, location, color, border_size)
 
-# hold the window; close it by clicking the window close 'x' mark
+    def draw_polygon(self):
+        turtle.penup()
+        turtle.goto(self.location[0], self.location[1])
+        turtle.setheading(self.orientation)
+        turtle.color(self.color)
+        turtle.pensize(self.border_size)
+        turtle.pendown()
+        for _ in range(self.sides):
+            turtle.forward(self.size)
+            turtle.left(360/self.sides)
+        turtle.penup()
+
+
+    def small_setup(self):
+        turtle.forward(self.size*(1-self.reduct_ratio)/2)
+        turtle.left(90)
+        turtle.forward(self.size*(1-self.reduct_ratio)/2)
+        turtle.right(90)
+        self.location[0] = turtle.pos()[0]
+        self.location[1] = turtle.pos()[1]
+        self.size -= 24
+
+
+    def small_create(self):
+        self.draw_polygon()
+
+
+pics = int(input("Which art do you want to generate? Enter a number between 1 to 8,inclusive: "))
+if 1 <= pics <= 3 or 5 <= pics <= 7:
+    for i in range(random.randint(20, 30)):
+        if 1 <= pics <= 3:
+            pic = Polygon(pics+2, "No")
+        elif 5 <= pics <= 7:
+            pic = Polygon(pics-2, "Yes")
+        pic.setup()
+        pic.play()
+elif pics == 4 or pics == 8:
+    for i in range(3):
+        for j in range(random.randint(10, 15)):
+            if pics == 4:
+                pic = Polygon(i+3, "No")
+                pic.setup()
+                pic.play()
+            elif pics == 8:
+                pic = Polygon(i + 3, "Yes")
+                pic.setup()
+                pic.play()
+
 turtle.done()
